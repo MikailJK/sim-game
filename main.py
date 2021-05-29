@@ -1,5 +1,5 @@
 import pygame
-import math
+import random
 
 pygame.init()
 
@@ -10,19 +10,23 @@ clock = pygame.time.Clock()
 framerate = 30
 
 doves_list = []
-food_list = []
-food_count = 0
+doves_sprites = pygame.sprite.Group([])
+food_sprites = pygame.sprite.Group([])
 
 class food(object):
 
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        self.sprite = pygame.sprite.Sprite()
+        self.sprite.image = pygame.Surface((20, 20), pygame.SRCALPHA)
+        pygame.draw.circle(self.sprite.image, (50, 200, 50), (10, 10), 10)
+        self.sprite.rect = pygame.Rect(self.x, self.y, 10, 10)
 
-    def draw(self, win):
-        color = (25, 100, 25)
-        center = (self.x, self.y)
-        pygame.draw.circle(win, color, center, 10)
+    # def draw(self, win):
+    #     color = (25, 100, 25)
+    #     center = (self.x, self.y)
+    #     pygame.draw.circle(win, color, center, 10)
 
 class dove(object):
 
@@ -33,59 +37,51 @@ class dove(object):
         self.y = y
         self.vel = vel
         self.start = True
+        self.sprite = pygame.sprite.Sprite()
+        self.sprite.image = pygame.Surface((20, 20), pygame.SRCALPHA)
+        pygame.draw.circle(self.sprite.image, (50, 10, 255), (10, 10), 10)
+        self.sprite.rect = pygame.Rect(self.x, self.y, 10, 10)
 
     def find_closest_food(self):
         global food_list
-        if food_count <= 0:
-            return
         pos = pygame.math.Vector2(self.x, self.y)
-        closest_food = min([f for f in food_list], key=lambda f: pos.distance_to(pygame.math.Vector2(f.x, f.y)))
+        closest_food = min([f for f in food_sprites], key=lambda f: pos.distance_to(pygame.math.Vector2(f.rect.center)))
         return closest_food
 
-    def move(self, closest_food):
-        global food_count
-        delx = closest_food.x - self.x
-        dely = closest_food.y - self.y
-        if (abs(dely) > 10 or abs(delx) > 10):
-            theta = math.atan(delx / dely)
-            self.x += math.sin(theta) * self.vel * (abs(delx) / delx)
-            self.y += math.cos(theta) * self.vel * (abs(dely) / dely)
-        else:
-            print(food_list.index(closest_food))
-            food_list.remove(closest_food)
-            food_count -= 1
-
-    def draw(self, win):
-        color = (25, 100, 220)
-
-        if not self.start:
-            closest_food = self.find_closest_food()
-            self.move(closest_food)
-        else:
-            self.start = False
-
-        center = (self.x, self.y)
-        pygame.draw.circle(win, color, center, 10)
+    def move(self):
+        if len(food_sprites) <= 0:
+            return
+        closest_food = self.find_closest_food()
+        delx, dely  = closest_food.rect.x - self.x, closest_food.rect.y - self.y
+        dir = pygame.math.Vector2(delx, dely)
+        dir.scale_to_length(self.vel)
+        self.x += dir.x
+        self.y += dir.y
+        self.sprite.rect.center = (self.x, self.y)
+        #self.sprite.rect.center = (pygame.mouse.get_pos())
+        pygame.sprite.spritecollide(self.sprite, food_sprites, True, pygame.sprite.collide_circle)
 
 
-def gen_doves_and_food(amount):
+
+def gen_doves_and_food(dove_amount, food_amount):
     global doves_list
+    global doves_sprites
     global food_list
     global food_count
 
     length = win.get_width()
-    interval = length / (amount )
-    for i in range(amount):
-        doves_list.append(dove((i * interval), 10, 7))
+    interval = length / (dove_amount)
+    for i in range(dove_amount):
+        d = (dove((500+(i*100)), 900, 5 + i * 1))
+        doves_list.append(d)
+        doves_sprites.add(d.sprite)
 
-    for i in range(4):
-        for j in range(4):
-            food_list.append(food(i * 200 + 200, j * 100 + 250))
-            food_count += 1
+    for i in range(food_amount):
+        f = food(random.randint(10, 990), random.randint(10, 990))
+        food_sprites.add(f.sprite)
 
 
-gen_doves_and_food(1)
-print('length: ' + str(len(food_list)))
+gen_doves_and_food(3, 100)
 
 run = True
 while run:
@@ -97,13 +93,11 @@ while run:
 
     win.fill((0, 0, 0))
 
-    for i in range(len(food_list)):
-        food_list[i].draw(win)
-
     for i in range(len(doves_list)):
-        doves_list[i].draw(win)
+        doves_list[i].move()
 
-
+    doves_sprites.draw(win)
+    food_sprites.draw(win)
 
     pygame.display.update()
 
