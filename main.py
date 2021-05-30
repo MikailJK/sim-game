@@ -51,7 +51,7 @@ def gen_doves_and_food(dove_amount, food_amount):
     global vel
 
     amount = food_amount
-    length = 800
+    length = 1000
     num_list = split(dove_amount, 4)
     for i in range(num_list[0]):
         d = (dove.dove(get_offset(i, num_list[0]), 30, vel + (random.randrange(-1, 2))))
@@ -74,12 +74,22 @@ def gen_doves_and_food(dove_amount, food_amount):
         f = food(random.randint(200, 800), random.randint(200, 800))
         food_sprites.add(f.sprite)
 
+def regen_food(food_amount):
+    for i in range(food_amount):
+        f = food(random.randint(200, 800), random.randint(200, 800))
+        food_sprites.add(f.sprite)
+
 def new_gen(sdl):
+    global doves_list
+    global doves_sprites
     new_doves = []
     for d in sdl:
         if d.energy >= 2:
             new_doves.append(d)
-            new_doves.append(dove.dove(1, 1, (d.vel + random.uniform(-variability, variability))))
+            doves_sprites.add(d.sprite)
+            nd = dove.dove(500, 500, (d.vel + random.uniform(-variability, variability)))
+            new_doves.append(nd)
+            doves_sprites.add(nd.sprite)
 
 
 def main():
@@ -87,12 +97,14 @@ def main():
     global doves_sprites
     global framerate
     global win
-    gen_doves_and_food(7, 3)
+    food_amount = 10
+    gen_doves_and_food(7, food_amount)
     for i in range(10):
         suc_doves = generations_controller.run_gen(doves_list, doves_sprites, food_sprites)
         for dove in suc_doves:
             print(dove)
-        dove_list = new_gen(suc_doves)
+        doves_list = new_gen(suc_doves)
+        regen_food(food_amount)
         input("Press Enter for Next Generation")
 
 main()

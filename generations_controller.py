@@ -1,15 +1,17 @@
 #runs each generation
 import pygame
 
+
 pygame.init()
 
-win = pygame.display.set_mode((800, 800))
+win = pygame.display.set_mode((1000, 1000))
 pygame.display.set_caption("Sim")
 
 clock = pygame.time.Clock()
 framerate = 30
 
 successful_doves = []
+
 
 def run_gen(dove_list, dove_sprites, food_sprites):
     global successful_doves
@@ -38,4 +40,5 @@ def run_gen(dove_list, dove_sprites, food_sprites):
 
         pygame.display.update()
 
+    pygame.quit()
     return successful_doves
