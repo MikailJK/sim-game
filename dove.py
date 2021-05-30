@@ -13,7 +13,7 @@ class dove(object):
         self.start = True
         self.sprite = pygame.sprite.Sprite()
         self.sprite.image = pygame.Surface((20, 20), pygame.SRCALPHA)
-        pygame.draw.circle(self.sprite.image, (50, 10, 255), (10, 10), 10)
+        pygame.draw.circle(self.sprite.image, (20 * vel, 50, 150), (10, 10), 10)
         self.sprite.rect = pygame.Rect(self.x, self.y, 10, 10)
 
     def find_closest_food(self, food_sprites):

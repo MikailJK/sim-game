@@ -4,7 +4,7 @@ import pygame
 
 pygame.init()
 
-win = pygame.display.set_mode((1000, 1000))
+win = pygame.display.set_mode((800, 800))
 pygame.display.set_caption("Sim")
 
 clock = pygame.time.Clock()
@@ -14,6 +14,8 @@ successful_doves = []
 
 
 def run_gen(dove_list, dove_sprites, food_sprites):
+    #print(food_sprites)
+    #print(dove_list)
     global successful_doves
     run = True
     while len(food_sprites) > 0 and len(dove_list) > 0:
@@ -40,5 +42,6 @@ def run_gen(dove_list, dove_sprites, food_sprites):
 
         pygame.display.update()
 
-    pygame.quit()
+    win.fill((0,0,0))
+    #pygame.quit()
     return successful_doves
