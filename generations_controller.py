@@ -4,7 +4,7 @@ import pygame
 
 pygame.init()
 
-win = pygame.display.set_mode((800, 800))
+win = pygame.display.set_mode((1000, 1000))
 pygame.display.set_caption("Sim")
 
 clock = pygame.time.Clock()
