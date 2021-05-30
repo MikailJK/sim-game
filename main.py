@@ -1,17 +1,17 @@
 import pygame
 import random
+import dove
+import generations_controller
+import dove_manager
 
-pygame.init()
 
-win = pygame.display.set_mode((1000, 1000))
-pygame.display.set_caption("Sim")
 
-clock = pygame.time.Clock()
-framerate = 30
-
-doves_list = []
-doves_sprites = pygame.sprite.Group([])
 food_sprites = pygame.sprite.Group([])
+variability = 1
+vel = 5
+
+screen_width = 1000
+
 
 class food(object):
 
@@ -23,82 +23,42 @@ class food(object):
         pygame.draw.circle(self.sprite.image, (50, 200, 50), (10, 10), 10)
         self.sprite.rect = pygame.Rect(self.x, self.y, 10, 10)
 
-    # def draw(self, win):
-    #     color = (25, 100, 25)
-    #     center = (self.x, self.y)
-    #     pygame.draw.circle(win, color, center, 10)
 
-class dove(object):
-
-    global framerate
-
-    def __init__(self, x, y, vel):
-        self.x = x
-        self.y = y
-        self.vel = vel
-        self.start = True
-        self.sprite = pygame.sprite.Sprite()
-        self.sprite.image = pygame.Surface((20, 20), pygame.SRCALPHA)
-        pygame.draw.circle(self.sprite.image, (50, 10, 255), (10, 10), 10)
-        self.sprite.rect = pygame.Rect(self.x, self.y, 10, 10)
-
-    def find_closest_food(self):
-        global food_list
-        pos = pygame.math.Vector2(self.x, self.y)
-        closest_food = min([f for f in food_sprites], key=lambda f: pos.distance_to(pygame.math.Vector2(f.rect.center)))
-        return closest_food
-
-    def move(self):
-        if len(food_sprites) <= 0:
-            return
-        closest_food = self.find_closest_food()
-        delx, dely  = closest_food.rect.x - self.x, closest_food.rect.y - self.y
-        dir = pygame.math.Vector2(delx, dely)
-        dir.scale_to_length(self.vel)
-        self.x += dir.x
-        self.y += dir.y
-        self.sprite.rect.center = (self.x, self.y)
-        #self.sprite.rect.center = (pygame.mouse.get_pos())
-        pygame.sprite.spritecollide(self.sprite, food_sprites, True, pygame.sprite.collide_circle)
-
-
-
-def gen_doves_and_food(dove_amount, food_amount):
-    global doves_list
-    global doves_sprites
-    global food_list
-    global food_count
-
-    length = win.get_width()
-    interval = length / (dove_amount)
-    for i in range(dove_amount):
-        d = (dove((500+(i*100)), 900, 5 + i * 1))
-        doves_list.append(d)
-        doves_sprites.add(d.sprite)
-
+def gen_food(food_amount):
+    global food_sprites
+    global screen_width
+    food_sprites.empty()
     for i in range(food_amount):
-        f = food(random.randint(10, 990), random.randint(10, 990))
+        f = food(random.randint(screen_width * 0.2, screen_width * 0.8), random.randint(screen_width * 0.2, screen_width * 0.8))
         food_sprites.add(f.sprite)
 
 
-gen_doves_and_food(3, 100)
+def main():
+    doves_list = []
+    doves_sprites = pygame.sprite.Group([])
+    global food_sprites
+    food_amount = 10
+    doves_amount = 10
+    gen_food(food_amount)
+    dove_manager.gen_doves(doves_list, doves_sprites, doves_amount, vel)
+    dove_manager.place_doves(doves_list, doves_amount, screen_width)
 
-run = True
-while run:
-    clock.tick(framerate)
+    for i in range(100):
+        average_vel = 0
+        for d in doves_list:
+            average_vel += d.vel
+        average_vel = round(average_vel / len(doves_list), 2)
+        print('Average Velocity: ' + str(average_vel))
+        suc_doves = generations_controller.run_gen(doves_list, doves_sprites, food_sprites)
+        #for d in suc_doves:
+        #    print(d)
+        doves_list = dove_manager.new_gen(suc_doves, doves_list, doves_sprites, screen_width, variability)
+        #print(doves_list)
+        dove_manager.place_doves(doves_list, len(doves_list), screen_width)
+        gen_food(food_amount)
+        input("Press Enter for Next Generation")
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
 
-    win.fill((0, 0, 0))
-
-    for i in range(len(doves_list)):
-        doves_list[i].move()
-
-    doves_sprites.draw(win)
-    food_sprites.draw(win)
-
-    pygame.display.update()
+main()
 
 pygame.quit()
