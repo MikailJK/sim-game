@@ -32,7 +32,7 @@ def run_gen(dove_list, dove_sprites, food_sprites):
             d.move(food_sprites)
             if d.energy == 1 and d not in successful_doves:
                 successful_doves.append(d)
-            if d.energy >= 2:
+            if d.energy >= (d.vel * 0.5):
                 dove_list.remove(d)
                 dove_sprites.remove(d)
 

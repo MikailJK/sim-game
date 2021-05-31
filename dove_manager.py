@@ -55,11 +55,11 @@ def new_gen(sdl, doves_list, doves_sprites, width, var):
     new = 0
     new_list = []
     for d in sdl:
-        if d.energy >= 2:
+        if d.energy >= (d.vel * 0.5):
             d.energy = 0
             doves_sprites.add(d.sprite)
             new_list.append(d)
-            nd = dove.dove(10, 10, (d.vel + random.uniform(-var, var)))
+            nd = dove.dove(10, 10, (d.vel + random.uniform(-var, var)), (d.vision + random.uniform(-var * 50, var * 50)))
             new_list.append(nd)
             doves_sprites.add(nd.sprite)
             surviving += 1
@@ -70,9 +70,6 @@ def new_gen(sdl, doves_list, doves_sprites, width, var):
             d.x = width
             new_list.append(d)
             doves_sprites.add(d.sprite)
-        else:
-            #doves_list.remove(d)
-            dead += 1
 
     print('Surviving: ' + str(surviving))
     print('New: ' + str(new))
@@ -81,8 +78,8 @@ def new_gen(sdl, doves_list, doves_sprites, width, var):
     return new_list
 
 
-def gen_doves(doves_list, doves_sprites, dove_amount, vel):
+def gen_doves(doves_list, doves_sprites, dove_amount, vel, vision):
     for i in range(dove_amount):
-        d = (dove.dove(1, 1, vel + (random.randrange(-1, 2))))
+        d = (dove.dove(1, 1, vel + (random.randrange(-1, 2)), vision))
         doves_list.append(d)
         doves_sprites.add(d.sprite)

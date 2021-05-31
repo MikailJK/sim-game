@@ -8,6 +8,7 @@ import dove_manager
 
 food_sprites = pygame.sprite.Group([])
 variability = 1
+vision = 150
 vel = 5
 
 screen_width = 1000
@@ -40,15 +41,19 @@ def main():
     food_amount = 10
     doves_amount = 10
     gen_food(food_amount)
-    dove_manager.gen_doves(doves_list, doves_sprites, doves_amount, vel)
+    dove_manager.gen_doves(doves_list, doves_sprites, doves_amount, vel, vision)
     dove_manager.place_doves(doves_list, doves_amount, screen_width)
 
-    for i in range(100):
+    for i in range(50):
         average_vel = 0
+        average_vision = 0
         for d in doves_list:
             average_vel += d.vel
+            average_vision += d.vision
         average_vel = round(average_vel / len(doves_list), 2)
+        average_vision = round(average_vision / len(doves_list), 2)
         print('Average Velocity: ' + str(average_vel))
+        print('Average Vision: ' + str(average_vision))
         suc_doves = generations_controller.run_gen(doves_list, doves_sprites, food_sprites)
         #for d in suc_doves:
         #    print(d)
@@ -56,7 +61,7 @@ def main():
         #print(doves_list)
         dove_manager.place_doves(doves_list, len(doves_list), screen_width)
         gen_food(food_amount)
-        input("Press Enter for Next Generation")
+        #input("Press Enter for Next Generation")
 
 
 main()
